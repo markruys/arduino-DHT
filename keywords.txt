@@ -1,0 +1,37 @@
+#######################################
+# Syntax Coloring Map For DHT
+#######################################
+
+#######################################
+# Datatypes (KEYWORD1)
+#######################################
+
+DHT	KEYWORD1
+
+#######################################
+# Methods and Functions (KEYWORD2)
+#######################################
+
+read	KEYWORD2
+getModel	KEYWORD2
+getMinimalDelay	KEYWORD2
+
+#######################################
+# Instances (KEYWORD2)
+#######################################
+
+
+#######################################
+# Constants (LITERAL1)
+#######################################
+
+AUTO_DETECT	LITERAL1
+DHT11	LITERAL1
+DHT22	LITERAL1
+AM2302	LITERAL1
+RHT03	LITERAL1
+
+ERROR_NONE	LITERAL1
+ERROR_TIMEOUT	LITERAL1
+ERROR_CHECKSUM	LITERAL1
+ERROR_TOO_QUICK	LITERAL1
