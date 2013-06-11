@@ -67,6 +67,7 @@ protected:
   DHT_MODEL_t model;
 
 private:
+  DHT_t results;
   unsigned long lastReadTime;
 };
 

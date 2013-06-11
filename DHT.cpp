@@ -31,13 +31,14 @@ DHT::DHT(int pin, DHT_MODEL_t model) {
   DHT::pin = pin;
   DHT::model = model;
 
-  DHT::lastReadTime = millis() - 3000;
+  DHT::lastReadTime = millis();
 
   // Determine sensor model
   if ( model == AUTO_DETECT) {
+    DHT::lastReadTime -= 3000; // Prevent ERROR_TOO_QUICK for next read
     if ( read().error == ERROR_TIMEOUT ) {
       DHT::model = DHT11;
-      delay(18); // ignore the reading
+      delay(18); // ignore bits we might get
     }
     else {
       DHT::model = DHT22;
@@ -50,15 +51,11 @@ DHT::DHT_MODEL_t DHT::getModel() {
 }
 
 int DHT::getMinimalDelay() {
-  return model == DHT11 ? 1010 : 2020;
+  return model == DHT11 ? 1001 : 2001;
 }
 
 DHT::DHT_t DHT::read()
 {
-  DHT_t results;
-  results.temperature = NAN;
-  results.humidity = NAN;
-
   // Make sure we don't poll the sensor too often
   // - Max sample rate DHT11 is 1 Hz   (duty cicle 1000 ms)
   // - Max sample rate DHT22 is 0.5 Hz (duty cicle 2000 ms)
@@ -68,6 +65,9 @@ DHT::DHT_t DHT::read()
    return results;
   }
   lastReadTime = startTime;
+
+  results.temperature = NAN;
+  results.humidity = NAN;
 
   // Request sample
 
@@ -153,5 +153,3 @@ DHT::DHT_t DHT::read()
 
   return results;
 }
-
-
