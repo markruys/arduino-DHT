@@ -70,18 +70,18 @@ DHT::DHT_t DHT::read()
 
   // Request sample
 
-	digitalWrite(pin, LOW); // Send start signal
-	pinMode(pin, OUTPUT);
-	if ( model == DHT11 ) {
-  	delay(18);
-	}
-	else {
-	  // This will fail for a DHT11 - that's how we can detect such a device
+  digitalWrite(pin, LOW); // Send start signal
+  pinMode(pin, OUTPUT);
+  if ( model == DHT11 ) {
+    delay(18);
+  }
+  else {
+    // This will fail for a DHT11 - that's how we can detect such a device
     delayMicroseconds(800);
-	}
+  }
 
-	pinMode(pin, INPUT);
-	digitalWrite(pin, HIGH); // Switch bus to receive data
+  pinMode(pin, INPUT);
+  digitalWrite(pin, HIGH); // Switch bus to receive data
 
   word humidity;
   word temperature;
