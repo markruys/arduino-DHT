@@ -31,7 +31,7 @@ DHT::DHT(int pin, DHT_MODEL_t model) {
   DHT::pin = pin;
   DHT::model = model;
 
-  DHT::lastReadTime = millis();
+  DHT::lastReadTime = millis() - 3000;
 
   // Determine sensor model
   if ( model == AUTO_DETECT) {
