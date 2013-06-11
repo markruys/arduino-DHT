@@ -43,36 +43,32 @@ public:
   typedef enum {
     ERROR_NONE = 0,
     ERROR_TIMEOUT,
-    ERROR_CHECKSUM,
-    ERROR_TOO_QUICK
+    ERROR_CHECKSUM
   }
   DHT_ERROR_t;
 
-  struct DHT_t {
-    DHT_ERROR_t error;
-    float temperature;
-    float humidity;
-  };
-
   DHT(int pin, DHT_MODEL_t model=AUTO_DETECT);
+
+  float getTemperature();
+
+  float getHumidity();
+
+  DHT_ERROR_t getStatus();
 
   DHT_MODEL_t getModel();
 
   int getMinimalDelay(); // minimal delay between readings
 
-  DHT_t read(boolean doReportErrorTooQuick=true);
-
-  float getTemperature();
-  float getHumidity();
-  DHT_ERROR_t getStatus();
-
-protected:
+private:
   int pin;
   DHT_MODEL_t model;
 
-private:
-  DHT_t results;
+  void readSensor();
   unsigned long lastReadTime;
+
+  DHT_ERROR_t error;
+  float temperature;
+  float humidity;
 };
 
 #endif /*dht_h*/

@@ -14,15 +14,9 @@ void loop()
 {
   delay(dht.getMinimalDelay());
 
-  DHT::DHT_t results = dht.read();
-
-  switch ( results.error ) {
+  switch ( dht.getStatus() ) {
     case DHT::ERROR_NONE:
       Serial.print("OK");
-      break;
-
-    case DHT::ERROR_TOO_QUICK:
-      Serial.print("TOO QUICK");
       break;
 
     case DHT::ERROR_TIMEOUT:
@@ -35,12 +29,11 @@ void loop()
 
     default:
       Serial.print("ERROR");
-      Serial.print(results.error);
       break;
   }
   Serial.print("\t");
-  Serial.print(results.humidity, 1);
+  Serial.print(dht.getHumidity(), 1);
   Serial.print("\t\t");
-  Serial.println(results.temperature, 1);
+  Serial.println(dht.getTemperature(), 1);
 }
 

@@ -31,12 +31,12 @@ DHT::DHT(int pin, DHT_MODEL_t model) {
   DHT::pin = pin;
   DHT::model = model;
 
-  DHT::lastReadTime = millis();
+  lastReadTime = millis();
 
   // Determine sensor model
   if ( model == AUTO_DETECT) {
-    DHT::lastReadTime -= 3000; // Prevent ERROR_TOO_QUICK for next read
-    if ( read().error == ERROR_TIMEOUT ) {
+    lastReadTime -= 3000; // Make sure we do read the sensor in the next getStatus()
+    if ( getStatus() == ERROR_TIMEOUT ) {
       DHT::model = DHT11;
       delay(18); // ignore bits we might get
     }
@@ -54,22 +54,37 @@ int DHT::getMinimalDelay() {
   return model == DHT11 ? 1001 : 2001;
 }
 
-DHT::DHT_t DHT::read(boolean doReportErrorTooQuick)
+float DHT::getTemperature()
+{
+  readSensor();
+  return temperature;
+}
+
+float DHT::getHumidity()
+{
+  readSensor();
+  return humidity;
+}
+
+DHT::DHT_ERROR_t DHT::getStatus()
+{
+  readSensor();
+  return error;
+}
+
+void DHT::readSensor()
 {
   // Make sure we don't poll the sensor too often
   // - Max sample rate DHT11 is 1 Hz   (duty cicle 1000 ms)
   // - Max sample rate DHT22 is 0.5 Hz (duty cicle 2000 ms)
   unsigned long startTime = millis();
   if ( (unsigned long)(startTime - lastReadTime) < (model == DHT11 ? 1000L : 2000L) ) {
-    if ( doReportErrorTooQuick ) {
-      results.error = ERROR_TOO_QUICK;
-    }
-    return results;
+    return;
   }
   lastReadTime = startTime;
 
-  results.temperature = NAN;
-  results.humidity = NAN;
+  temperature = NAN;
+  humidity = NAN;
 
   // Request sample
 
@@ -86,14 +101,14 @@ DHT::DHT_t DHT::read(boolean doReportErrorTooQuick)
   pinMode(pin, INPUT);
   digitalWrite(pin, HIGH); // Switch bus to receive data
 
-  word humidity;
-  word temperature;
-  word data;
-
   // We're going to read 83 edges:
   // - First a FALLING, RISING, and FALLING edge for the start bit
   // - Then 40 bits: RISING and then a FALLING edge per bit
   // To keep our code simple, we accept any HIGH or LOW reading if it's max 85 usecs long
+
+  word rawHumidity;
+  word rawTemperature;
+  word data;
 
   for ( int8_t i = -3 ; i < 2 * 40; i++ ) {
     byte age;
@@ -102,8 +117,8 @@ DHT::DHT_t DHT::read(boolean doReportErrorTooQuick)
     do {
       age = (unsigned long)(micros() - startTime);
       if ( age > 85 ) {
-        results.error = DHT::ERROR_TIMEOUT;
-        return results;
+        error = ERROR_TIMEOUT;
+        return;
       }
     }
     while ( digitalRead(pin) == (i & 1) ? HIGH : LOW );
@@ -120,10 +135,10 @@ DHT::DHT_t DHT::read(boolean doReportErrorTooQuick)
 
     switch ( i ) {
       case 31:
-        humidity = data;
+        rawHumidity = data;
         break;
       case 63:
-        temperature = data;
+        rawTemperature = data;
         data = 0;
         break;
     }
@@ -131,42 +146,26 @@ DHT::DHT_t DHT::read(boolean doReportErrorTooQuick)
 
   // Verify checksum
 
-  if ( (byte)(((byte)humidity) + (humidity >> 8) + ((byte)temperature) + (temperature >> 8)) != data ) {
-    results.error = ERROR_CHECKSUM;
-    return results;
+  if ( (byte)(((byte)rawHumidity) + (rawHumidity >> 8) + ((byte)rawTemperature) + (rawTemperature >> 8)) != data ) {
+    error = ERROR_CHECKSUM;
+    return;
   }
 
   // Store readings
 
   if ( model == DHT11 ) {
-    results.humidity = humidity >> 8;
-    results.temperature = temperature >> 8;
+    humidity = rawHumidity >> 8;
+    temperature = rawTemperature >> 8;
   }
   else {
-    results.humidity = humidity * 0.1;
+    humidity = rawHumidity * 0.1;
 
-    if ( temperature & 0x8000 ) {
-      temperature = -(int16_t)(temperature & 0x7FFF);
+    if ( rawTemperature & 0x8000 ) {
+      rawTemperature = -(int16_t)(rawTemperature & 0x7FFF);
     }
-    results.temperature = ((int16_t)temperature) * 0.1;
+    temperature = ((int16_t)rawTemperature) * 0.1;
   }
 
-  results.error = ERROR_NONE;
-
-  return results;
+  error = ERROR_NONE;
 }
 
-float DHT::getTemperature()
-{
-  return read(false).temperature;
-}
-
-float DHT::getHumidity()
-{
-  return read(false).humidity;
-}
-
-DHT::DHT_ERROR_t DHT::getStatus()
-{
-  return read(false).error;
-}
