@@ -54,15 +54,17 @@ int DHT::getMinimalDelay() {
   return model == DHT11 ? 1001 : 2001;
 }
 
-DHT::DHT_t DHT::read()
+DHT::DHT_t DHT::read(boolean doReportErrorTooQuick)
 {
   // Make sure we don't poll the sensor too often
   // - Max sample rate DHT11 is 1 Hz   (duty cicle 1000 ms)
   // - Max sample rate DHT22 is 0.5 Hz (duty cicle 2000 ms)
   unsigned long startTime = millis();
   if ( (unsigned long)(startTime - lastReadTime) < (model == DHT11 ? 1000L : 2000L) ) {
-   results.error = ERROR_TOO_QUICK;
-   return results;
+    if ( doReportErrorTooQuick ) {
+      results.error = ERROR_TOO_QUICK;
+    }
+    return results;
   }
   lastReadTime = startTime;
 
@@ -152,4 +154,19 @@ DHT::DHT_t DHT::read()
   results.error = ERROR_NONE;
 
   return results;
+}
+
+float DHT::getTemperature()
+{
+  return read(false).temperature;
+}
+
+float DHT::getHumidity()
+{
+  return read(false).humidity;
+}
+
+DHT::DHT_ERROR_t DHT::getStatus()
+{
+  return read(false).error;
 }

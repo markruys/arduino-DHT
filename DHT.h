@@ -60,7 +60,11 @@ public:
 
   int getMinimalDelay(); // minimal delay between readings
 
-  DHT_t read();
+  DHT_t read(boolean doReportErrorTooQuick=true);
+
+  float getTemperature();
+  float getHumidity();
+  DHT_ERROR_t getStatus();
 
 protected:
   int pin;
