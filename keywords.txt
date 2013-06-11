@@ -12,7 +12,10 @@ DHT	KEYWORD1
 # Methods and Functions (KEYWORD2)
 #######################################
 
-read	KEYWORD2
+setup	KEYWORD2
+getTemperature	KEYWORD2
+getHumidity	KEYWORD2
+getStatus	KEYWORD2
 getModel	KEYWORD2
 getMinimalDelay	KEYWORD2
 
@@ -34,4 +37,3 @@ RHT03	LITERAL1
 ERROR_NONE	LITERAL1
 ERROR_TIMEOUT	LITERAL1
 ERROR_CHECKSUM	LITERAL1
-ERROR_TOO_QUICK	LITERAL1
