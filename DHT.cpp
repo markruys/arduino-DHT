@@ -36,10 +36,11 @@ DHT::DHT(int pin, DHT_MODEL_t model) {
   // Determine sensor model
   if ( model == AUTO_DETECT) {
     if ( read().error == ERROR_TIMEOUT ) {
-      model = DHT11;
+      DHT::model = DHT11;
+      delay(18); // ignore the reading
     }
     else {
-      model = DHT22;
+      DHT::model = DHT22;
     }
   }
 }
