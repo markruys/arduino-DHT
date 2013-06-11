@@ -85,7 +85,7 @@ DHT::DHT_t DHT::read()
 
   word humidity;
   word temperature;
-  word data = 0;
+  word data;
 
   // We're going to read 83 edges:
   // - First a FALLING, RISING, and FALLING edge for the start bit
@@ -118,7 +118,6 @@ DHT::DHT_t DHT::read()
     switch ( i ) {
       case 31:
         humidity = data;
-        data = 0;
         break;
       case 63:
         temperature = data;
