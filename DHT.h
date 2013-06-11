@@ -49,6 +49,8 @@ public:
 
   DHT(int pin, DHT_MODEL_t model=AUTO_DETECT);
 
+  void setup();
+
   float getTemperature();
 
   float getHumidity();

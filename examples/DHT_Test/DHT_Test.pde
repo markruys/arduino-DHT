@@ -8,6 +8,8 @@ void setup()
   Serial.begin(9600);
   Serial.println();
   Serial.println("Status\tHumidity (%)\tTemperature (C)");
+
+  dht.setup();
 }
 
 void loop()

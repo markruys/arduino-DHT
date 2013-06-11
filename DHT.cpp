@@ -27,30 +27,32 @@
 
 #include "DHT.h"
 
-DHT::DHT(int pin, DHT_MODEL_t model) {
+DHT::DHT(int pin, DHT_MODEL_t model)
+{
   DHT::pin = pin;
   DHT::model = model;
+  DHT::lastReadTime = millis();
+}
 
-  lastReadTime = millis();
-
-  // Determine sensor model
+void DHT::setup()
+{
   if ( model == AUTO_DETECT) {
-    lastReadTime -= 3000; // Make sure we do read the sensor in the next getStatus()
+    model = DHT22;
+    lastReadTime -= 3000; // Make sure we do read the sensor in the next readSensor()
     if ( getStatus() == ERROR_TIMEOUT ) {
-      DHT::model = DHT11;
+      model = DHT11;
       delay(18); // ignore bits we might get
-    }
-    else {
-      DHT::model = DHT22;
     }
   }
 }
 
-DHT::DHT_MODEL_t DHT::getModel() {
+DHT::DHT_MODEL_t DHT::getModel()
+{
   return model;
 }
 
-int DHT::getMinimalDelay() {
+int DHT::getMinimalDelay()
+{
   return model == DHT11 ? 1001 : 2001;
 }
 
@@ -74,6 +76,14 @@ DHT::DHT_ERROR_t DHT::getStatus()
 
 void DHT::readSensor()
 {
+  if ( model == AUTO_DETECT) {
+    // If the user forgot to initialize the sensor, we'll do it for him.
+    init();
+    if ( model == DHT11 ) {
+      delay(1000);
+    }
+  }
+
   // Make sure we don't poll the sensor too often
   // - Max sample rate DHT11 is 1 Hz   (duty cicle 1000 ms)
   // - Max sample rate DHT22 is 0.5 Hz (duty cicle 2000 ms)
