@@ -1,6 +1,6 @@
 #include "DHT.h"
 
-DHT dht = DHT(2); // data pin 2
+DHT dht;
 
 void setup()
 {
@@ -8,7 +8,7 @@ void setup()
   Serial.println();
   Serial.println("Status\tHumidity (%)\tTemperature (C)");
 
-  dht.setup();
+  dht.setup(2); // data pin 2
 }
 
 void loop()
@@ -21,4 +21,3 @@ void loop()
   Serial.print("\t\t");
   Serial.println(dht.getTemperature(), 1);
 }
-

@@ -14,8 +14,15 @@
   BSD license, check license.txt for more information.
   All text above must be included in any redistribution.
 
+  Datasheets:
+  - http://www.micro4you.com/files/sensor/DHT11.pdf
+  - http://www.adafruit.com/datasheets/DHT22.pdf
+  - http://dlnmh9ip6v2uc.cloudfront.net/datasheets/Sensors/Weather/RHT03.pdf
+  - http://meteobox.tk/files/AM2302.pdf
+
   Changelog:
-   2013-06-10: Initial version by Mark Ruys
+   2013-06-10: Initial version
+   2013-06-12: Refactored code
  ******************************************************************/
 
 #ifndef dht_h
@@ -47,9 +54,7 @@ public:
   }
   DHT_ERROR_t;
 
-  DHT(int pin, DHT_MODEL_t model=AUTO_DETECT);
-
-  void setup();
+  void setup(int pin, DHT_MODEL_t model=AUTO_DETECT);
 
   float getTemperature();
   float getHumidity();
@@ -75,7 +80,4 @@ private:
 };
 
 #endif /*dht_h*/
-
-
-
 
