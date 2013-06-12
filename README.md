@@ -15,9 +15,9 @@ Features
 Usage
 -----
 
+```
 #include "DHT.h"
 
-```
 DHT dht;
 
 void setup()
@@ -44,6 +44,6 @@ Installation
 Place the [DHT][download] library folder in your `<arduinosketchfolder>/libraries/` folder. You may need to create the `libraries` subfolder if its your first library. Restart the Arduino IDE. 
 
 [download]: https://github.com/markruys/arduino-DHT/archive/master.zip "Download DHT library"
-[example]: https://github.com/markruys/arduino-DHT/tree/master/examples "Show DHT example"
-[header]: https://github.com/markruys/arduino-DHT/tree/master/dht.h "Show header file"
+[example]: https://github.com/markruys/arduino-DHT/blob/master/examples/DHT_Test/DHT_Test.pde "Show DHT example"
+[header]: https://github.com/markruys/arduino-DHT/blob/master/DHT.h "Show header file"
 
