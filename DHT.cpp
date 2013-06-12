@@ -184,3 +184,12 @@ void DHT::readSensor()
   error = ERROR_NONE;
 }
 
+float DHT::toFahrenheit(float fromCelcius)
+{
+  return 1.8 * fromCelcius + 32.0;
+}
+
+float DHT::toCelsius(float fromFahrenheit)
+{
+  return 0.5555556 * (fromFahrenheit - 32.0);
+}

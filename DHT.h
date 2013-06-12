@@ -66,6 +66,9 @@ public:
 
   int getMinimumSamplingPeriod();
 
+  static float toFahrenheit(float fromCelcius);
+  static float toCelsius(float fromFahrenheit);
+
 protected:
   void readSensor();
 
