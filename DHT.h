@@ -75,8 +75,8 @@ protected:
   float temperature;
   float humidity;
 
-private:
   int pin;
+private:
   DHT_MODEL_t model;
   DHT_ERROR_t error;
   unsigned long lastReadTime;
