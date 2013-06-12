@@ -52,7 +52,6 @@ public:
   void setup();
 
   float getTemperature();
-
   float getHumidity();
 
   DHT_ERROR_t getStatus();
@@ -61,16 +60,17 @@ public:
 
   int getMinimalDelay(); // minimal delay between readings
 
+protected:
+  void readSensor();
+
+  float temperature;
+  float humidity;
+
 private:
   int pin;
   DHT_MODEL_t model;
-
-  void readSensor();
-  unsigned long lastReadTime;
-
   DHT_ERROR_t error;
-  float temperature;
-  float humidity;
+  unsigned long lastReadTime;
 };
 
 #endif /*dht_h*/
