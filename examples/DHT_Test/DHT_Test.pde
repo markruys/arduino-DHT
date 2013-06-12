@@ -1,4 +1,3 @@
-
 #include "DHT.h"
 
 DHT dht = DHT(2); // data pin 2
@@ -14,25 +13,9 @@ void setup()
 
 void loop()
 {
-  delay(dht.getMinimalDelay());
+  delay(dht.getMinimumSamplingPeriod());
 
-  switch ( dht.getStatus() ) {
-    case DHT::ERROR_NONE:
-      Serial.print("OK");
-      break;
-
-    case DHT::ERROR_TIMEOUT:
-      Serial.print("TIMEOUT");
-      break;
-
-    case DHT::ERROR_CHECKSUM:
-      Serial.print("CHECKSUM");
-      break;
-
-    default:
-      Serial.print("ERROR");
-      break;
-  }
+  Serial.print(dht.getStatusString());
   Serial.print("\t");
   Serial.print(dht.getHumidity(), 1);
   Serial.print("\t\t");

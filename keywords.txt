@@ -16,8 +16,9 @@ setup	KEYWORD2
 getTemperature	KEYWORD2
 getHumidity	KEYWORD2
 getStatus	KEYWORD2
+getStatusString	KEYWORD2
 getModel	KEYWORD2
-getMinimalDelay	KEYWORD2
+getMinimumSamplingPeriod	KEYWORD2
 
 #######################################
 # Instances (KEYWORD2)

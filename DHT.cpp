@@ -14,16 +14,16 @@
   BSD license, check license.txt for more information.
   All text above must be included in any redistribution.
 
-  Changelog:
-   2013-06-10: Initial version by Mark Ruys
- ******************************************************************/
+  Datasheets:
+  - http://www.micro4you.com/files/sensor/DHT11.pdf
+  - http://www.adafruit.com/datasheets/DHT22.pdf
+  - http://dlnmh9ip6v2uc.cloudfront.net/datasheets/Sensors/Weather/RHT03.pdf
+  - http://meteobox.tk/files/AM2302.pdf
 
-//
-// Datasheets:
-// - http://www.micro4you.com/files/sensor/DHT11.pdf
-// - http://www.adafruit.com/datasheets/DHT22.pdf
-// - http://dlnmh9ip6v2uc.cloudfront.net/datasheets/Sensors/Weather/RHT03.pdf
-// - http://meteobox.tk/files/AM2302.pdf
+  Changelog:
+   2013-06-10: Initial version
+   2013-06-12: Refactored code
+ ******************************************************************/
 
 #include "DHT.h"
 
@@ -51,7 +51,7 @@ DHT::DHT_MODEL_t DHT::getModel()
   return model;
 }
 
-int DHT::getMinimalDelay()
+int DHT::getMinimumSamplingPeriod()
 {
   return model == DHT11 ? 1001 : 2001;
 }
@@ -72,6 +72,23 @@ DHT::DHT_ERROR_t DHT::getStatus()
 {
   readSensor();
   return error;
+}
+
+char* DHT::getStatusString()
+{
+  switch ( DHT::getStatus() ) {
+    case DHT::ERROR_NONE:
+      return "OK";
+
+    case DHT::ERROR_TIMEOUT:
+      return "TIMEOUT";
+
+    case DHT::ERROR_CHECKSUM:
+      return "CHECKSUM";
+
+    default:
+      return "ERROR";
+  }
 }
 
 void DHT::readSensor()

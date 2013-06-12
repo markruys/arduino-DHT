@@ -55,10 +55,11 @@ public:
   float getHumidity();
 
   DHT_ERROR_t getStatus();
+  char* getStatusString();
 
   DHT_MODEL_t getModel();
 
-  int getMinimalDelay(); // minimal delay between readings
+  int getMinimumSamplingPeriod();
 
 protected:
   void readSensor();
