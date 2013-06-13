@@ -60,7 +60,7 @@ public:
   float getHumidity();
 
   DHT_ERROR_t getStatus();
-  char* getStatusString();
+  const char* getStatusString();
 
   DHT_MODEL_t getModel();
 
@@ -76,6 +76,7 @@ protected:
   float humidity;
 
   int pin;
+
 private:
   DHT_MODEL_t model;
   DHT_ERROR_t error;

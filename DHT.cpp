@@ -70,21 +70,15 @@ DHT::DHT_ERROR_t DHT::getStatus()
   return error;
 }
 
-char* DHT::getStatusString()
+PROGMEM const char *errorMessages[] =
 {
-  switch ( DHT::getStatus() ) {
-    case DHT::ERROR_NONE:
-      return "OK";
+  "OK",
+  "TIMEOUT",
+  "CHECKSUM"
+};
 
-    case DHT::ERROR_TIMEOUT:
-      return "TIMEOUT";
-
-    case DHT::ERROR_CHECKSUM:
-      return "CHECKSUM";
-
-    default:
-      return "ERROR";
-  }
+const char* DHT::getStatusString() {
+  return (char*)pgm_read_word(&(errorMessages[DHT::getStatus()]));
 }
 
 void DHT::readSensor()
