@@ -15,12 +15,15 @@ void loop()
 {
   delay(dht.getMinimumSamplingPeriod());
 
+  float humidity = dht.getHumidity();
+  float temperature = dht.getTemperature();
+
   Serial.print(dht.getStatusString());
   Serial.print("\t");
-  Serial.print(dht.getHumidity(), 1);
+  Serial.print(humidity, 1);
   Serial.print("\t\t");
-  Serial.print(dht.getTemperature(), 1);
+  Serial.print(temperature, 1);
   Serial.print("\t\t");
-  Serial.println(dht.toFahrenheit(dht.getTemperature()), 1);
+  Serial.println(dht.toFahrenheit(temperature), 1);
 }
 

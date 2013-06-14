@@ -70,16 +70,51 @@ DHT::DHT_ERROR_t DHT::getStatus()
   return error;
 }
 
-PROGMEM const char *errorMessages[] =
-{
-  "OK",
-  "TIMEOUT",
-  "CHECKSUM"
-};
+#ifndef OPTIMIZE_SRAM_SIZE
 
-const char* DHT::getStatusString() {
-  return (char*)pgm_read_word(&(errorMessages[DHT::getStatus()]));
+const char* DHT::getStatusString()
+{
+  switch ( error ) {
+    case DHT::ERROR_TIMEOUT:
+      return "TIMEOUT";
+
+    case DHT::ERROR_CHECKSUM:
+      return "CHECKSUM";
+
+    default:
+      return "OK";
+  }
 }
+
+#else
+
+// At the expense of 26 bytes of extra PROGMEM, we save 11 bytes of
+// SRAM by using the following method:
+
+prog_char P_OK[]       PROGMEM = "OK";
+prog_char P_TIMEOUT[]  PROGMEM = "TIMEOUT";
+prog_char P_CHECKSUM[] PROGMEM = "CHECKSUM";
+
+const char *DHT::getStatusString() {
+  prog_char *c;
+  switch ( error ) {
+    case DHT::ERROR_CHECKSUM:
+      c = P_CHECKSUM; break;
+
+    case DHT::ERROR_TIMEOUT:
+      c = P_TIMEOUT; break;
+
+    default:
+      c = P_OK; break;
+  }
+
+  static char buffer[9];
+  strcpy_P(buffer, c);
+
+  return buffer;
+}
+
+#endif
 
 void DHT::readSensor()
 {
