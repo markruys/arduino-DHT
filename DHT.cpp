@@ -38,7 +38,8 @@ void DHT::setup(int pin, DHT_MODEL_t model)
     readSensor();
     if ( error == ERROR_TIMEOUT ) {
       DHT::model = DHT11;
-      delay(18); // ignore bits we might get
+      // Warning: in case we auto detect a DHT11, you should wait at least 1000 msec
+      // before your first read request. Otherwise you will get a time out error.
     }
   }
 }
