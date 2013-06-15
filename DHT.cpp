@@ -35,7 +35,8 @@ void DHT::setup(int pin, DHT_MODEL_t model)
 
   if ( model == AUTO_DETECT) {
     DHT::model = DHT22;
-    if ( getStatus() == ERROR_TIMEOUT ) {
+    readSensor();
+    if ( error == ERROR_TIMEOUT ) {
       DHT::model = DHT11;
       delay(18); // ignore bits we might get
     }
@@ -66,7 +67,6 @@ float DHT::getTemperature()
 
 DHT::DHT_ERROR_t DHT::getStatus()
 {
-  readSensor();
   return error;
 }
 
