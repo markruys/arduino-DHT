@@ -160,7 +160,7 @@ void DHT::readSensor()
 
     do {
       age = (unsigned long)(micros() - startTime);
-      if ( age > 85 ) {
+      if ( age > 90 ) {
         error = ERROR_TIMEOUT;
         return;
       }
