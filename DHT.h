@@ -54,20 +54,28 @@ public:
   }
   DHT_ERROR_t;
 
-  void setup(int pin, DHT_MODEL_t model=AUTO_DETECT);
+  void setup(uint8_t pin, DHT_MODEL_t model=AUTO_DETECT);
 
   float getTemperature();
   float getHumidity();
 
-  DHT_ERROR_t getStatus();
+  DHT_ERROR_t getStatus() { return error; };
   const char* getStatusString();
 
-  DHT_MODEL_t getModel();
+  DHT_MODEL_t getModel() { return model; }
 
-  int getMinimumSamplingPeriod();
+  int getMinimumSamplingPeriod() { return model == DHT11 ? 1000 : 2000; }
 
-  static float toFahrenheit(float fromCelcius);
-  static float toCelsius(float fromFahrenheit);
+  int8_t getNumberOfDecimalsTemperature() { return model == DHT11 ? 0 : 1; };
+  int8_t getLowerBoundTemperature() { return model == DHT11 ? 0 : -40; };
+  int8_t getUpperBoundTemperature() { return model == DHT11 ? 50 : 125; };
+
+  int8_t getNumberOfDecimalsHumidity() { return 0; };
+  int8_t getLowerBoundHumidity() { return model == DHT11 ? 20 : 0; };
+  int8_t getUpperBoundHumidity() { return model == DHT11 ? 90 : 100; };
+
+  static float toFahrenheit(float fromCelcius) { return 1.8 * fromCelcius + 32.0; };
+  static float toCelsius(float fromFahrenheit) { return 0.5555556 * (fromFahrenheit - 32.0); };
 
 protected:
   void readSensor();
@@ -75,7 +83,7 @@ protected:
   float temperature;
   float humidity;
 
-  int pin;
+  uint8_t pin;
 
 private:
   DHT_MODEL_t model;

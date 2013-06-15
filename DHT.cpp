@@ -27,7 +27,7 @@
 
 #include "DHT.h"
 
-void DHT::setup(int pin, DHT_MODEL_t model)
+void DHT::setup(uint8_t pin, DHT_MODEL_t model)
 {
   DHT::pin = pin;
   DHT::model = model;
@@ -44,16 +44,6 @@ void DHT::setup(int pin, DHT_MODEL_t model)
   }
 }
 
-DHT::DHT_MODEL_t DHT::getModel()
-{
-  return model;
-}
-
-int DHT::getMinimumSamplingPeriod()
-{
-  return model == DHT11 ? 1001 : 2001;
-}
-
 float DHT::getHumidity()
 {
   readSensor();
@@ -64,11 +54,6 @@ float DHT::getTemperature()
 {
   readSensor();
   return temperature;
-}
-
-DHT::DHT_ERROR_t DHT::getStatus()
-{
-  return error;
 }
 
 #ifndef OPTIMIZE_SRAM_SIZE
@@ -123,7 +108,7 @@ void DHT::readSensor()
   // - Max sample rate DHT11 is 1 Hz   (duty cicle 1000 ms)
   // - Max sample rate DHT22 is 0.5 Hz (duty cicle 2000 ms)
   unsigned long startTime = millis();
-  if ( (unsigned long)(startTime - lastReadTime) < (model == DHT11 ? 1000L : 2000L) ) {
+  if ( (unsigned long)(startTime - lastReadTime) < (model == DHT11 ? 999L : 1999L) ) {
     return;
   }
   lastReadTime = startTime;
@@ -212,14 +197,4 @@ void DHT::readSensor()
   }
 
   error = ERROR_NONE;
-}
-
-float DHT::toFahrenheit(float fromCelcius)
-{
-  return 1.8 * fromCelcius + 32.0;
-}
-
-float DHT::toCelsius(float fromFahrenheit)
-{
-  return 0.5555556 * (fromFahrenheit - 32.0);
 }
