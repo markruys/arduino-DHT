@@ -75,7 +75,7 @@ public:
   int8_t getUpperBoundHumidity() { return model == DHT11 ? 90 : 100; };
 
   static float toFahrenheit(float fromCelcius) { return 1.8 * fromCelcius + 32.0; };
-  static float toCelsius(float fromFahrenheit) { return 0.5555556 * (fromFahrenheit - 32.0); };
+  static float toCelsius(float fromFahrenheit) { return (fromFahrenheit - 32.0) / 1.8; };
 
 protected:
   void readSensor();
