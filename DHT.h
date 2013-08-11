@@ -23,6 +23,7 @@
   Changelog:
    2013-06-10: Initial version
    2013-06-12: Refactored code
+   2013-07-01: Add a resetTimer method
  ******************************************************************/
 
 #ifndef dht_h
@@ -55,6 +56,7 @@ public:
   DHT_ERROR_t;
 
   void setup(uint8_t pin, DHT_MODEL_t model=AUTO_DETECT);
+  void resetTimer();
 
   float getTemperature();
   float getHumidity();
@@ -92,4 +94,3 @@ private:
 };
 
 #endif /*dht_h*/
-
