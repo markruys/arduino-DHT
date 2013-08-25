@@ -23,6 +23,7 @@
   Changelog:
    2013-06-10: Initial version
    2013-06-12: Refactored code
+   2013-07-01: Add a resetTimer method
  ******************************************************************/
 
 #include "DHT.h"
@@ -31,7 +32,7 @@ void DHT::setup(uint8_t pin, DHT_MODEL_t model)
 {
   DHT::pin = pin;
   DHT::model = model;
-  DHT::lastReadTime = millis() - 3000; // Make sure we do read the sensor in the next readSensor()
+  DHT::resetTimer(); // Make sure we do read the sensor in the next readSensor()
 
   if ( model == AUTO_DETECT) {
     DHT::model = DHT22;
@@ -42,6 +43,11 @@ void DHT::setup(uint8_t pin, DHT_MODEL_t model)
       // before your first read request. Otherwise you will get a time out error.
     }
   }
+}
+
+void DHT::resetTimer()
+{
+  DHT::lastReadTime = millis() - 3000;
 }
 
 float DHT::getHumidity()
