@@ -28,85 +28,16 @@
 
 #include "DHT.h"
 
-void DHT::setup(uint8_t pin, DHT_MODEL_t model)
+void DHT::setup(uint8_t pin_)
 {
-  DHT::pin = pin;
-  DHT::model = model;
-  DHT::resetTimer(); // Make sure we do read the sensor in the next readSensor()
-
-  if ( model == AUTO_DETECT) {
-    DHT::model = DHT22;
-    readSensor();
-    if ( error == ERROR_TIMEOUT ) {
-      DHT::model = DHT11;
-      // Warning: in case we auto detect a DHT11, you should wait at least 1000 msec
-      // before your first read request. Otherwise you will get a time out error.
-    }
-  }
+  pin = pin_;
+  resetTimer(); // Make sure we do read the sensor in the next readSensor()
 }
 
 void DHT::resetTimer()
 {
-  DHT::lastReadTime = millis() - 3000;
+  lastReadTime = millis() - 3000;
 }
-
-float DHT::getHumidity()
-{
-  readSensor();
-  return humidity;
-}
-
-float DHT::getTemperature()
-{
-  readSensor();
-  return temperature;
-}
-
-#ifndef OPTIMIZE_SRAM_SIZE
-
-const char* DHT::getStatusString()
-{
-  switch ( error ) {
-    case DHT::ERROR_TIMEOUT:
-      return "TIMEOUT";
-
-    case DHT::ERROR_CHECKSUM:
-      return "CHECKSUM";
-
-    default:
-      return "OK";
-  }
-}
-
-#else
-
-// At the expense of 26 bytes of extra PROGMEM, we save 11 bytes of
-// SRAM by using the following method:
-
-prog_char P_OK[]       PROGMEM = "OK";
-prog_char P_TIMEOUT[]  PROGMEM = "TIMEOUT";
-prog_char P_CHECKSUM[] PROGMEM = "CHECKSUM";
-
-const char *DHT::getStatusString() {
-  prog_char *c;
-  switch ( error ) {
-    case DHT::ERROR_CHECKSUM:
-      c = P_CHECKSUM; break;
-
-    case DHT::ERROR_TIMEOUT:
-      c = P_TIMEOUT; break;
-
-    default:
-      c = P_OK; break;
-  }
-
-  static char buffer[9];
-  strcpy_P(buffer, c);
-
-  return buffer;
-}
-
-#endif
 
 void DHT::readSensor()
 {
@@ -114,25 +45,16 @@ void DHT::readSensor()
   // - Max sample rate DHT11 is 1 Hz   (duty cicle 1000 ms)
   // - Max sample rate DHT22 is 0.5 Hz (duty cicle 2000 ms)
   unsigned long startTime = millis();
-  if ( (unsigned long)(startTime - lastReadTime) < (model == DHT11 ? 999L : 1999L) ) {
+  if ((unsigned long)(startTime - lastReadTime) < 1999L)
     return;
-  }
-  lastReadTime = startTime;
 
-  temperature = NAN;
-  humidity = NAN;
+  lastReadTime = startTime;
 
   // Request sample
 
   digitalWrite(pin, LOW); // Send start signal
   pinMode(pin, OUTPUT);
-  if ( model == DHT11 ) {
-    delay(18);
-  }
-  else {
-    // This will fail for a DHT11 - that's how we can detect such a device
-    delayMicroseconds(800);
-  }
+  delayMicroseconds(800);
 
   pinMode(pin, INPUT);
   digitalWrite(pin, HIGH); // Switch bus to receive data
@@ -142,8 +64,6 @@ void DHT::readSensor()
   // - Then 40 bits: RISING and then a FALLING edge per bit
   // To keep our code simple, we accept any HIGH or LOW reading if it's max 85 usecs long
 
-  word rawHumidity;
-  word rawTemperature;
   word data;
 
   for ( int8_t i = -3 ; i < 2 * 40; i++ ) {
@@ -171,10 +91,10 @@ void DHT::readSensor()
 
     switch ( i ) {
       case 31:
-        rawHumidity = data;
+        humidity = data;
         break;
       case 63:
-        rawTemperature = data;
+        temperature = data;
         data = 0;
         break;
     }
@@ -182,24 +102,9 @@ void DHT::readSensor()
 
   // Verify checksum
 
-  if ( (byte)(((byte)rawHumidity) + (rawHumidity >> 8) + ((byte)rawTemperature) + (rawTemperature >> 8)) != data ) {
+  if ((byte)(((byte)humidity) + (humidity >> 8) + ((byte)temperature) + (temperature >> 8)) != data ) {
     error = ERROR_CHECKSUM;
     return;
-  }
-
-  // Store readings
-
-  if ( model == DHT11 ) {
-    humidity = rawHumidity >> 8;
-    temperature = rawTemperature >> 8;
-  }
-  else {
-    humidity = rawHumidity * 0.1;
-
-    if ( rawTemperature & 0x8000 ) {
-      rawTemperature = -(int16_t)(rawTemperature & 0x7FFF);
-    }
-    temperature = ((int16_t)rawTemperature) * 0.1;
   }
 
   error = ERROR_NONE;
