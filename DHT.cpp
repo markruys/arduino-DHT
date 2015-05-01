@@ -32,7 +32,6 @@ void DHT::setup(uint8_t pin, DHT_MODEL_t model)
 {
   DHT::pin = pin;
   DHT::model = model;
-  DHT::resetTimer(); // Make sure we do read the sensor in the next readSensor()
 
   if ( model == AUTO_DETECT) {
     DHT::model = DHT22;
@@ -43,23 +42,6 @@ void DHT::setup(uint8_t pin, DHT_MODEL_t model)
       // before your first read request. Otherwise you will get a time out error.
     }
   }
-}
-
-void DHT::resetTimer()
-{
-  DHT::lastReadTime = millis() - 3000;
-}
-
-float DHT::getHumidity()
-{
-  readSensor();
-  return humidity;
-}
-
-float DHT::getTemperature()
-{
-  readSensor();
-  return temperature;
 }
 
 #ifndef OPTIMIZE_SRAM_SIZE
@@ -110,15 +92,6 @@ const char *DHT::getStatusString() {
 
 void DHT::readSensor()
 {
-  // Make sure we don't poll the sensor too often
-  // - Max sample rate DHT11 is 1 Hz   (duty cicle 1000 ms)
-  // - Max sample rate DHT22 is 0.5 Hz (duty cicle 2000 ms)
-  unsigned long startTime = millis();
-  if ( (unsigned long)(startTime - lastReadTime) < (model == DHT11 ? 999L : 1999L) ) {
-    return;
-  }
-  lastReadTime = startTime;
-
   temperature = NAN;
   humidity = NAN;
 
@@ -134,51 +107,54 @@ void DHT::readSensor()
     delayMicroseconds(800);
   }
 
-  pinMode(pin, INPUT);
-  digitalWrite(pin, HIGH); // Switch bus to receive data
+  pinMode(pin, INPUT_PULLUP); // Switch bus to receive data
 
-  // We're going to read 83 edges:
-  // - First a FALLING, RISING, and FALLING edge for the start bit
-  // - Then 40 bits: RISING and then a FALLING edge per bit
-  // To keep our code simple, we accept any HIGH or LOW reading if it's max 85 usecs long
+  // We're going to read 41 pulses, which each consist of a transition to HIGH
+  // and then back to LOW again. The first pulse is the start bit and goes for
+  // ~80us. Then after that, a 26-28us pulse is a 0, and a 70us pulse is a 1.
+  //
+  // It's helpful to disable interrupts for the whole duration of capture, since
+  // at 8 MHz a timer interrupt takes ~10us, long enough to cause a short "0"
+  // pulse to be missed. However, this will cause millis() and micros() to give
+  // an inaccurate result.
+
+  noInterrupts();
 
   word rawHumidity;
   word rawTemperature;
   word data;
 
-  for ( int8_t i = -3 ; i < 2 * 40; i++ ) {
-    byte age;
-    startTime = micros();
+  unsigned calibration = 0;
 
-    do {
-      age = (unsigned long)(micros() - startTime);
-      if ( age > 90 ) {
-        error = ERROR_TIMEOUT;
-        return;
-      }
-    }
-    while ( digitalRead(pin) == (i & 1) ? HIGH : LOW );
+  for ( int8_t i = -1 ; i < 40; i++ ) {
+    byte width = (byte)pulseIn(pin, HIGH, 150);
 
-    if ( i >= 0 && (i & 1) ) {
+	if (width == 0) {
+	  error = ERROR_TIMEOUT;
+      interrupts();
+	  return;
+	}
+
+    if ( i >= 0 ) {
       // Now we are being fed our 40 bits
       data <<= 1;
 
-      // A zero max 30 usecs, a one at least 68 usecs.
-      if ( age > 30 ) {
+      if ( width > 45 ) {
         data |= 1; // we got a one
       }
-    }
 
-    switch ( i ) {
-      case 31:
-        rawHumidity = data;
-        break;
-      case 63:
-        rawTemperature = data;
-        data = 0;
-        break;
+      switch ( i ) {
+        case 15:
+          rawHumidity = data;
+          break;
+        case 31:
+          rawTemperature = data;
+          data = 0;
+          break;
+      }
     }
   }
+  interrupts();
 
   // Verify checksum
 
