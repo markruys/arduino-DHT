@@ -31,6 +31,7 @@ void loop()
 {
   delay(dht.getMinimumSamplingPeriod());
 
+  dht.readSensor();
   Serial.print(dht.getHumidity());
   Serial.print("\t");
   Serial.print(dht.getTemperature());

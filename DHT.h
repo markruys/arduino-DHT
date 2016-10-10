@@ -24,6 +24,13 @@
    2013-06-10: Initial version
    2013-06-12: Refactored code
    2013-07-01: Add a resetTimer method
+   2015-04-25: Remove resetTimer(). Require readSensor() to be called before
+               getTemperature()/getHumidity() and remove the sampling rate
+               check, so that we don't need to rely on millis() being accurate.
+               This means that we can support sleep mode. Improve reliability
+               on 8MHz devices by disabling interrupts and using pulseIn()
+               instead of our own busy loop.
+
  ******************************************************************/
 
 #ifndef dht_h
@@ -56,10 +63,16 @@ public:
   DHT_ERROR_t;
 
   void setup(uint8_t pin, DHT_MODEL_t model=AUTO_DETECT);
-  void resetTimer();
 
-  float getTemperature();
-  float getHumidity();
+  void readSensor();
+
+  float getTemperature() {
+    return temperature;
+  }
+
+  float getHumidity() {
+    return humidity;
+  }
 
   DHT_ERROR_t getStatus() { return error; };
   const char* getStatusString();
@@ -80,8 +93,6 @@ public:
   static float toCelsius(float fromFahrenheit) { return (fromFahrenheit - 32.0) / 1.8; };
 
 protected:
-  void readSensor();
-
   float temperature;
   float humidity;
 
@@ -90,7 +101,6 @@ protected:
 private:
   DHT_MODEL_t model;
   DHT_ERROR_t error;
-  unsigned long lastReadTime;
 };
 
 #endif /*dht_h*/
