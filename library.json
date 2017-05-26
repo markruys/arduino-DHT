@@ -1,0 +1,15 @@
+{
+    "name": "DHT",
+    "keywords": "dht, sensor, temperature, humidity",
+    "description": "An Arduino library for reading the DHT family of temperature and humidity sensors. Written by Mark Ruys, mark@paracas.nl.", 
+    "repository": {
+        "url": "https://github.com/markruys/arduino-DHT", 
+        "type": "git"
+    },
+    "platforms": [
+        "atmelavr",
+        "espressif8266"
+    ], 
+    "version": "1.0.0", 
+    "frameworks": "arduino"
+}
