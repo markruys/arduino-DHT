@@ -80,7 +80,7 @@ public:
   static float toCelsius(float fromFahrenheit) { return (fromFahrenheit - 32.0) / 1.8; };
 
 protected:
-  void readSensor();
+  bool readSensor();
 
   float temperature;
   float humidity;
