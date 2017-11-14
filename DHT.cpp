@@ -146,6 +146,10 @@ void DHT::readSensor()
   uint16_t rawTemperature = 0;
   uint16_t data = 0;
 
+#ifdef ESP32
+  portMUX_TYPE mux = portMUX_INITIALIZER_UNLOCKED;
+  portENTER_CRITICAL(&mux);
+#endif
   for ( int8_t i = -3 ; i < 2 * 40; i++ ) {
     byte age;
     startTime = micros();
@@ -154,6 +158,9 @@ void DHT::readSensor()
       age = (unsigned long)(micros() - startTime);
       if ( age > 90 ) {
         error = ERROR_TIMEOUT;
+#ifdef ESP32
+        portEXIT_CRITICAL(&mux);
+#endif
         return;
       }
     }
@@ -179,6 +186,10 @@ void DHT::readSensor()
         break;
     }
   }
+
+#ifdef ESP32
+  portEXIT_CRITICAL(&mux);
+#endif
 
   // Verify checksum
 
