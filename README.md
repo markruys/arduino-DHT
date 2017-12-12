@@ -2,7 +2,7 @@ DHT
 ===
 
 An Arduino library for reading the DHT family of temperature and humidity sensors.    
-Forked from [arduino-DHT][https://github.com/markruys/arduino-DHT]
+Forked from [arduino-DHT](https://github.com/markruys/arduino-DHT)
 Original written by Mark Ruys, <mark@paracas.nl>.    
 Updated to work with ESP32 by Bernd Giesecke, <bernd@giesecke.tk>.   
 For ESP32 (a multi core/ multi processing SOC) task switching must be disabled while reading data from the sensor.    
@@ -46,7 +46,7 @@ Installation
 
 Place the [DHTesp][download] library folder in your `<arduinosketchfolder>/libraries/` folder. You may need to create the `libraries` subfolder if its your first library. Restart the Arduino IDE. 
 
-[download]: https://github.com/beegee-tokyo/arduino-DHTesp/archive/master.zip "Download DHT library"
-[example]: https://github.com/beegee-tokyo/arduino-DHTesp/blob/master/examples/DHT_Test/DHT_Test.pde "Show DHT example"
-[header]: https://beegee-tokyo/arduino-DHTesp/blob/master/DHT.h "Show header file"
+[download]: https://github.com/beegee-tokyo/DHTesp/archive/master.zip "Download DHT library"
+[example]: https://github.com/beegee-tokyo/DHTesp/blob/master/examples/DHT_Test/DHT_Test.ino "Show DHT example"
+[header]: https://github.com/beegee-tokyo/DHTesp/blob/master/DHTesp.h "Show header file"
 
