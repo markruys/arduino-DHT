@@ -1,5 +1,5 @@
 /******************************************************************
-  DHT Temperature & Humidity Sensor library for Arduino.
+  DHT Temperature & Humidity Sensor library for Arduino & ESP32.
 
   Features:
   - Support for DHT11 and DHT22/AM2302/RHT03
@@ -7,10 +7,11 @@
   - Very low memory footprint
   - Very small code
 
-  http://www.github.com/markruys/arduino-DHT
+  https://github.com/beegee-tokyo/arduino-DHTesp
 
   Written by Mark Ruys, mark@paracas.nl.
-
+  Updated to work with ESP32 by Bernd Giesecke, bernd@giesecke.tk
+  
   BSD license, check license.txt for more information.
   All text above must be included in any redistribution.
 
@@ -24,39 +25,42 @@
    2013-06-10: Initial version
    2013-06-12: Refactored code
    2013-07-01: Add a resetTimer method
+   2017-12-12: Added task switch disable
+               Added computeHeatIndex function from Adafruit DNT library
+   
  ******************************************************************/
 
-#include "DHT.h"
+#include "DHTesp.h"
 
-void DHT::setup(uint8_t pin, DHT_MODEL_t model)
+void DHTesp::setup(uint8_t pin, DHT_MODEL_t model)
 {
-  DHT::pin = pin;
-  DHT::model = model;
-  DHT::resetTimer(); // Make sure we do read the sensor in the next readSensor()
+  DHTesp::pin = pin;
+  DHTesp::model = model;
+  DHTesp::resetTimer(); // Make sure we do read the sensor in the next readSensor()
 
   if ( model == AUTO_DETECT) {
-    DHT::model = DHT22;
+    DHTesp::model = DHT22;
     readSensor();
     if ( error == ERROR_TIMEOUT ) {
-      DHT::model = DHT11;
+      DHTesp::model = DHT11;
       // Warning: in case we auto detect a DHT11, you should wait at least 1000 msec
       // before your first read request. Otherwise you will get a time out error.
     }
   }
 }
 
-void DHT::resetTimer()
+void DHTesp::resetTimer()
 {
-  DHT::lastReadTime = millis() - 3000;
+  DHTesp::lastReadTime = millis() - 3000;
 }
 
-float DHT::getHumidity()
+float DHTesp::getHumidity()
 {
   readSensor();
   return humidity;
 }
 
-float DHT::getTemperature()
+float DHTesp::getTemperature()
 {
   readSensor();
   return temperature;
@@ -64,13 +68,13 @@ float DHT::getTemperature()
 
 #ifndef OPTIMIZE_SRAM_SIZE
 
-const char* DHT::getStatusString()
+const char* DHTesp::getStatusString()
 {
   switch ( error ) {
-    case DHT::ERROR_TIMEOUT:
+    case DHTesp::ERROR_TIMEOUT:
       return "TIMEOUT";
 
-    case DHT::ERROR_CHECKSUM:
+    case DHTesp::ERROR_CHECKSUM:
       return "CHECKSUM";
 
     default:
@@ -87,13 +91,13 @@ prog_char P_OK[]       PROGMEM = "OK";
 prog_char P_TIMEOUT[]  PROGMEM = "TIMEOUT";
 prog_char P_CHECKSUM[] PROGMEM = "CHECKSUM";
 
-const char *DHT::getStatusString() {
+const char *DHTesp::getStatusString() {
   prog_char *c;
   switch ( error ) {
-    case DHT::ERROR_CHECKSUM:
+    case DHTesp::ERROR_CHECKSUM:
       c = P_CHECKSUM; break;
 
-    case DHT::ERROR_TIMEOUT:
+    case DHTesp::ERROR_TIMEOUT:
       c = P_TIMEOUT; break;
 
     default:
@@ -108,7 +112,7 @@ const char *DHT::getStatusString() {
 
 #endif
 
-void DHT::readSensor()
+void DHTesp::readSensor()
 {
   // Make sure we don't poll the sensor too often
   // - Max sample rate DHT11 is 1 Hz   (duty cicle 1000 ms)
@@ -147,6 +151,8 @@ void DHT::readSensor()
   uint16_t data = 0;
 
 #ifdef ESP32
+  // ESP32 is a multi core / multi processing chip
+  // It is necessary to disable task switches during the readings
   portMUX_TYPE mux = portMUX_INITIALIZER_UNLOCKED;
   portENTER_CRITICAL(&mux);
 #endif
@@ -215,3 +221,36 @@ void DHT::readSensor()
 
   error = ERROR_NONE;
 }
+
+//boolean isFahrenheit: True == Fahrenheit; False == Celcius
+float DHTesp::computeHeatIndex(float temperature, float percentHumidity, bool isFahrenheit) {
+  // Using both Rothfusz and Steadman's equations
+  // http://www.wpc.ncep.noaa.gov/html/heatindex_equation.shtml
+  float hi;
+
+  if (!isFahrenheit)
+    temperature = toFahrenheit(temperature);
+
+  hi = 0.5 * (temperature + 61.0 + ((temperature - 68.0) * 1.2) + (percentHumidity * 0.094));
+
+  if (hi > 79) {
+    hi = -42.379 +
+             2.04901523 * temperature +
+            10.14333127 * percentHumidity +
+            -0.22475541 * temperature*percentHumidity +
+            -0.00683783 * pow(temperature, 2) +
+            -0.05481717 * pow(percentHumidity, 2) +
+             0.00122874 * pow(temperature, 2) * percentHumidity +
+             0.00085282 * temperature*pow(percentHumidity, 2) +
+            -0.00000199 * pow(temperature, 2) * pow(percentHumidity, 2);
+
+    if((percentHumidity < 13) && (temperature >= 80.0) && (temperature <= 112.0))
+      hi -= ((13.0 - percentHumidity) * 0.25) * sqrt((17.0 - abs(temperature - 95.0)) * 0.05882);
+
+    else if((percentHumidity > 85.0) && (temperature >= 80.0) && (temperature <= 87.0))
+      hi += ((percentHumidity - 85.0) * 0.1) * ((87.0 - temperature) * 0.2);
+  }
+
+  return isFahrenheit ? hi : toCelsius(hi);
+}
+

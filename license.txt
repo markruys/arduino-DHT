@@ -1,6 +1,7 @@
 Software License Agreement (BSD License)
 
 Copyright (c) 2013, Mark Ruys.  All rights reserved.
+Updated to work with ESP32 by Bernd Giesecke, bernd@giesecke.tk
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:

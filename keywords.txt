@@ -1,12 +1,12 @@
 #######################################
-# Syntax Coloring Map For DHT
+# Syntax Coloring Map For DHTesp
 #######################################
 
 #######################################
 # Datatypes (KEYWORD1)
 #######################################
 
-DHT	KEYWORD1
+DHTesp	KEYWORD1
 
 #######################################
 # Methods and Functions (KEYWORD2)
@@ -21,6 +21,7 @@ getModel	KEYWORD2
 getMinimumSamplingPeriod	KEYWORD2
 toFahrenheit  KEYWORD2
 toCelsius  KEYWORD2
+computeHeatIndex  KEYWORD2
 
 #######################################
 # Instances (KEYWORD2)

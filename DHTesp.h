@@ -1,5 +1,5 @@
 /******************************************************************
-  DHT Temperature & Humidity Sensor library for Arduino.
+  DHT Temperature & Humidity Sensor library for Arduino & ESP32.
 
   Features:
   - Support for DHT11 and DHT22/AM2302/RHT03
@@ -7,10 +7,11 @@
   - Very low memory footprint
   - Very small code
 
-  http://www.github.com/markruys/arduino-DHT
+  https://github.com/beegee-tokyo/arduino-DHTesp
 
   Written by Mark Ruys, mark@paracas.nl.
-
+  Updated to work with ESP32 by Bernd Giesecke, bernd@giesecke.tk
+  
   BSD license, check license.txt for more information.
   All text above must be included in any redistribution.
 
@@ -24,10 +25,13 @@
    2013-06-10: Initial version
    2013-06-12: Refactored code
    2013-07-01: Add a resetTimer method
+   2017-12-12: Added task switch disable
+               Added computeHeatIndex function from Adafruit DNT library
+   
  ******************************************************************/
 
-#ifndef dht_h
-#define dht_h
+#ifndef dhtesp_h
+#define dhtesp_h
 
 #if ARDUINO < 100
   #include <WProgram.h>
@@ -35,7 +39,7 @@
   #include <Arduino.h>
 #endif
 
-class DHT
+class DHTesp
 {
 public:
 
@@ -79,6 +83,8 @@ public:
   static float toFahrenheit(float fromCelcius) { return 1.8 * fromCelcius + 32.0; };
   static float toCelsius(float fromFahrenheit) { return (fromFahrenheit - 32.0) / 1.8; };
 
+  float computeHeatIndex(float temperature, float percentHumidity, bool isFahrenheit=true);
+  
 protected:
   void readSensor();
 
@@ -93,4 +99,4 @@ private:
   unsigned long lastReadTime;
 };
 
-#endif /*dht_h*/
+#endif /*dhtesp_h*/
