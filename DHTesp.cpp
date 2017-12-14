@@ -11,8 +11,8 @@
 
   Written by Mark Ruys, mark@paracas.nl.
   Updated to work with ESP32 by Bernd Giesecke, bernd@giesecke.tk
-  
-  BSD license, check license.txt for more information.
+
+  GNU General Public License, check LICENSE for more information.
   All text above must be included in any redistribution.
 
   Datasheets:
@@ -27,7 +27,9 @@
    2013-07-01: Add a resetTimer method
    2017-12-12: Added task switch disable
                Added computeHeatIndex function from Adafruit DNT library
-   
+   2017-12-14: Added computeDewPoint function from idDHTLib Library
+               Added getComfortRatio function from idDHTLib Library
+
  ******************************************************************/
 
 #include "DHTesp.h"
@@ -47,6 +49,29 @@ void DHTesp::setup(uint8_t pin, DHT_MODEL_t model)
       // before your first read request. Otherwise you will get a time out error.
     }
   }
+
+  //Set default comfort profile.
+
+  //In computing these constants the following reference was used
+  //http://epb.apogee.net/res/refcomf.asp
+  //It was simplified as 4 straight lines and added very little skew on
+  //the vertical lines (+0.1 on x for C,D)
+  //The for points used are(from top left, clock wise)
+  //A(30%, 30*C) B(70%, 26.2*C) C(70.1%, 20.55*C) D(30.1%, 22.22*C)
+  //On the X axis we have the rel humidity in % and on the Y axis the temperature in *C
+
+  //Too hot line AB
+  m_comfort.m_tooHot_m = -0.095;
+  m_comfort.m_tooHot_b = 32.85;
+  //Too humid line BC
+  m_comfort.m_tooHumid_m =  -56.5;
+  m_comfort.m_tooHumid_b = 3981.2;
+  //Too cold line DC
+  m_comfort.m_tooCold_m = -0.04175;
+  m_comfort.m_tooHCold_b = 23.476675;
+  //Too dry line AD
+  m_comfort.m_tooDry_m = -77.8;
+  m_comfort.m_tooDry_b = 2364;
 }
 
 void DHTesp::resetTimer()
@@ -228,8 +253,9 @@ float DHTesp::computeHeatIndex(float temperature, float percentHumidity, bool is
   // http://www.wpc.ncep.noaa.gov/html/heatindex_equation.shtml
   float hi;
 
-  if (!isFahrenheit)
+  if (!isFahrenheit) {
     temperature = toFahrenheit(temperature);
+  }
 
   hi = 0.5 * (temperature + 61.0 + ((temperature - 68.0) * 1.2) + (percentHumidity * 0.094));
 
@@ -254,3 +280,78 @@ float DHTesp::computeHeatIndex(float temperature, float percentHumidity, bool is
   return isFahrenheit ? hi : toCelsius(hi);
 }
 
+//boolean isFahrenheit: True == Fahrenheit; False == Celcius
+float DHTesp::computeDewPoint(float temperature, float percentHumidity, bool isFahrenheit) {
+  // reference: http://wahiduddin.net/calc/density_algorithms.htm
+  if (isFahrenheit) {
+    temperature = toCelsius(temperature);
+  }
+  double A0 = 373.15 / (273.15 + (double) temperature);
+  double SUM = -7.90298 * (A0 - 1);
+  SUM += 5.02808 * log10(A0);
+  SUM += -1.3816e-7 * (pow(10, (11.344 * (1 - 1 / A0))) - 1) ;
+  SUM += 8.1328e-3 * (pow(10, (-3.49149 * (A0 - 1))) - 1) ;
+  SUM += log10(1013.246);
+  double VP = pow(10, SUM - 3) * (double) percentHumidity;
+  double Td = log(VP / 0.61078); // temp var
+  Td = (241.88 * Td) / (17.558 - Td);
+  return isFahrenheit ? toFahrenheit(Td) : Td;
+}
+
+
+float DHTesp::getComfortRatio(ComfortState& destComfortStatus, float temperature, float percentHumidity, bool isFahrenheit) {
+	float ratio = 100; //100%
+	float distance = 0;
+	float kTempFactor = 3; //take into account the slope of the lines
+	float kHumidFactor = 0.1; //take into account the slope of the lines
+	uint8_t tempComfort = 0;
+
+  if (isFahrenheit) {
+    temperature = toCelsius(temperature);
+  }
+
+	destComfortStatus = Comfort_OK;
+
+	distance = m_comfort.distanceTooHot(temperature, percentHumidity);
+	if(distance > 0)
+	{
+		//update the comfort descriptor
+		tempComfort += (uint8_t)Comfort_TooHot;
+		//decrease the comfot ratio taking the distance into account
+		ratio -= distance * kTempFactor;
+	}
+
+	distance = m_comfort.distanceTooHumid(temperature, percentHumidity);
+	if(distance > 0)
+	{
+		//update the comfort descriptor
+		tempComfort += (uint8_t)Comfort_TooHumid;
+		//decrease the comfot ratio taking the distance into account
+		ratio -= distance * kHumidFactor;
+	}
+
+	distance = m_comfort.distanceTooCold(temperature, percentHumidity);
+	if(distance > 0)
+	{
+		//update the comfort descriptor
+		tempComfort += (uint8_t)Comfort_TooCold;
+		//decrease the comfot ratio taking the distance into account
+		ratio -= distance * kTempFactor;
+	}
+
+	distance = m_comfort.distanceTooDry(temperature, percentHumidity);
+	if(distance > 0)
+	{
+		//update the comfort descriptor
+		tempComfort += (uint8_t)Comfort_TooDry;
+		//decrease the comfot ratio taking the distance into account
+		ratio -= distance * kHumidFactor;
+	}
+
+	destComfortStatus = (ComfortState)tempComfort;
+
+	if(ratio < 0)
+		ratio = 0;
+
+	return ratio;
+}

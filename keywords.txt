@@ -22,6 +22,20 @@ getMinimumSamplingPeriod	KEYWORD2
 toFahrenheit	KEYWORD2
 toCelsius	KEYWORD2
 computeHeatIndex	KEYWORD2
+computeDewPoint	KEYWORD2
+getComfortRatio KEYWORD2
+getNumberOfDecimalsTemperature KEYWORD2
+getLowerBoundTemperature KEYWORD2
+getUpperBoundTemperature KEYWORD2
+getNumberOfDecimalsHumidity KEYWORD2
+getLowerBoundHumidity KEYWORD2
+getUpperBoundHumidity KEYWORD2
+getComfortProfile KEYWORD2
+setComfortProfile KEYWORD2
+isTooHot KEYWORD2
+isTooHumid KEYWORD2
+isTooCold KEYWORD2
+isTooDry KEYWORD2
 
 #######################################
 # Instances (KEYWORD2)
@@ -41,3 +55,13 @@ RHT03	LITERAL1
 ERROR_NONE	LITERAL1
 ERROR_TIMEOUT	LITERAL1
 ERROR_CHECKSUM	LITERAL1
+
+Comfort_OK	LITERAL1
+Comfort_TooHot	LITERAL1
+Comfort_TooCold	LITERAL1
+Comfort_TooDry	LITERAL1
+Comfort_TooHumid	LITERAL1
+Comfort_HotAndHumid	LITERAL1
+Comfort_HotAndDry	LITERAL1
+Comfort_ColdAndHumid	LITERAL1
+Comfort_ColdAndDry	LITERAL1

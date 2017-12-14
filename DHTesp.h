@@ -11,8 +11,8 @@
 
   Written by Mark Ruys, mark@paracas.nl.
   Updated to work with ESP32 by Bernd Giesecke, bernd@giesecke.tk
-  
-  BSD license, check license.txt for more information.
+
+  GNU General Public License, check LICENSE for more information.
   All text above must be included in any redistribution.
 
   Datasheets:
@@ -27,7 +27,9 @@
    2013-07-01: Add a resetTimer method
    2017-12-12: Added task switch disable
                Added computeHeatIndex function from Adafruit DNT library
-   
+   2017-12-14: Added computeDewPoint function from idDHTLib Library
+               Added getComfortRatio function from idDHTLib Library
+
  ******************************************************************/
 
 #ifndef dhtesp_h
@@ -38,6 +40,39 @@
 #else
   #include <Arduino.h>
 #endif
+
+// Reference: http://epb.apogee.net/res/refcomf.asp
+enum ComfortState {
+  Comfort_OK = 0,
+  Comfort_TooHot = 1,
+  Comfort_TooCold = 2,
+  Comfort_TooDry = 4,
+  Comfort_TooHumid = 8,
+  Comfort_HotAndHumid = 9,
+  Comfort_HotAndDry = 5,
+  Comfort_ColdAndHumid = 10,
+  Comfort_ColdAndDry = 6
+};
+
+struct ComfortProfile
+{
+  //Represent the 4 line equations:
+  //dry, humid, hot, cold, using the y = mx + b formula
+  float m_tooHot_m, m_tooHot_b;
+  float m_tooCold_m, m_tooHCold_b;
+  float m_tooDry_m, m_tooDry_b;
+  float m_tooHumid_m, m_tooHumid_b;
+
+  inline bool isTooHot(float temp, float humidity) {return (temp > (humidity * m_tooHot_m + m_tooHot_b));}
+  inline bool isTooHumid(float temp, float humidity) {return (temp > (humidity * m_tooHumid_m + m_tooHumid_b));}
+  inline bool isTooCold(float temp, float humidity) {return (temp < (humidity * m_tooCold_m + m_tooHCold_b));}
+  inline bool isTooDry(float temp, float humidity) {return (temp < (humidity * m_tooDry_m + m_tooDry_b));}
+
+  inline float distanceTooHot(float temp, float humidity) {return temp - (humidity * m_tooHot_m + m_tooHot_b);}
+  inline float distanceTooHumid(float temp, float humidity) {return temp - (humidity * m_tooHumid_m + m_tooHumid_b);}
+  inline float distanceTooCold(float temp, float humidity) {return (humidity * m_tooCold_m + m_tooHCold_b) - temp;}
+  inline float distanceTooDry(float temp, float humidity) {return (humidity * m_tooDry_m + m_tooDry_b) - temp;}
+};
 
 class DHTesp
 {
@@ -83,8 +118,16 @@ public:
   static float toFahrenheit(float fromCelcius) { return 1.8 * fromCelcius + 32.0; };
   static float toCelsius(float fromFahrenheit) { return (fromFahrenheit - 32.0) / 1.8; };
 
-  float computeHeatIndex(float temperature, float percentHumidity, bool isFahrenheit=true);
-  
+  float computeHeatIndex(float temperature, float percentHumidity, bool isFahrenheit=false);
+  float computeDewPoint(float temperature, float percentHumidity, bool isFahrenheit=false);
+  float getComfortRatio(ComfortState& destComfStatus, float temperature, float percentHumidity, bool isFahrenheit=false);
+  ComfortProfile getComfortProfile() {return m_comfort;}
+  void setComfortProfile(ComfortProfile& c) {m_comfort = c;}
+  inline bool isTooHot(float temp, float humidity) {return m_comfort.isTooHot(temp, humidity);}
+	inline bool isTooHumid(float temp, float humidity) {return m_comfort.isTooHumid(temp, humidity);}
+	inline bool isTooCold(float temp, float humidity) {return m_comfort.isTooCold(temp, humidity);}
+	inline bool isTooDry(float temp, float humidity) {return m_comfort.isTooDry(temp, humidity);}
+
 protected:
   void readSensor();
 
@@ -97,6 +140,7 @@ private:
   DHT_MODEL_t model;
   DHT_ERROR_t error;
   unsigned long lastReadTime;
+  ComfortProfile m_comfort;
 };
 
 #endif /*dhtesp_h*/
