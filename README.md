@@ -104,12 +104,12 @@ See [examples]- . For all the options, see [dhtesp.h][header].
 Installation
 ------------
 
-In Arduino IDE open Sketch->Include Library->Manage Libraries then search for _**DHTesp**_    
-In PlatformIO open PlatformIO Home, switch to libraries and search for _**DHTesp**_. Or install the library in the terminal with _**`platformio lib install 2029`**_    
+In Arduino IDE open Sketch->Include Library->Manage Libraries then search for _**DHT ESP**_    
+In PlatformIO open PlatformIO Home, switch to libraries and search for _**DHT ESP32**_. Or install the library in the terminal with _**`platformio lib install 2029`**_    
 
 For manual installation [download] the archive, unzip it and place the DHTesp folder into the library directory.    
 In Arduino IDE this is usually _**`<arduinosketchfolder>/libraries/`**_    
-In PlatformIO this is usually _**`<user/.platformio/lib>`*__    
+In PlatformIO this is usually _**`<user/.platformio/lib>`**_    
 [download]: https://github.com/beegee-tokyo/DHTesp/archive/master.zip "Download DHTesp library"
 [example]: https://github.com/beegee-tokyo/DHTesp/blob/master/examples "Show DHTesp examples"
 [header]: https://github.com/beegee-tokyo/DHTesp/blob/master/DHTesp.h "Show header file"
