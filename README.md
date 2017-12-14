@@ -99,7 +99,7 @@ Compute the comfort ratio. Default temperature is in Centrigrade.
 
 Usage
 -----
-See [examples]- . For all the options, see [dhtesp.h][header].    
+See [examples](https://github.com/beegee-tokyo/DHTesp/blob/master/examples)- . For all the options, see [dhtesp.h](https://github.com/beegee-tokyo/DHTesp/blob/master/DHTesp.h).    
 
 Installation
 ------------
@@ -110,6 +110,3 @@ In PlatformIO open PlatformIO Home, switch to libraries and search for _**DHT ES
 For manual installation [download] the archive, unzip it and place the DHTesp folder into the library directory.    
 In Arduino IDE this is usually _**`<arduinosketchfolder>/libraries/`**_    
 In PlatformIO this is usually _**`<user/.platformio/lib>`**_    
-[download]: https://github.com/beegee-tokyo/DHTesp/archive/master.zip "Download DHTesp library"
-[example]: https://github.com/beegee-tokyo/DHTesp/blob/master/examples "Show DHTesp examples"
-[header]: https://github.com/beegee-tokyo/DHTesp/blob/master/DHTesp.h "Show header file"
