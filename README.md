@@ -15,7 +15,7 @@ Changes to the original library:
 - Updated to work with ESP32 - beegee-tokyo, <beegee@giesecke.tk>.   
 - Added function computeHeatIndex. Reference: [Adafruit DHT library](https://github.com/adafruit/DHT-sensor-library).    
 - Added function computeDewPoint. Reference: [idDHTLib](https://github.com/niesteszeck/idDHTLib).    
-- Added function getComfortRatio. Reference: [idDHTLib](https://github.com/niesteszeck/idDHTLib).    
+- Added function getComfortRatio. Reference: [libDHT](https://github.com/ADiea/libDHT).    
 
 Features
 --------
@@ -107,6 +107,6 @@ Installation
 In Arduino IDE open Sketch->Include Library->Manage Libraries then search for _**DHT ESP**_    
 In PlatformIO open PlatformIO Home, switch to libraries and search for _**DHT ESP32**_. Or install the library in the terminal with _**`platformio lib install 2029`**_    
 
-For manual installation [download] the archive, unzip it and place the DHTesp folder into the library directory.    
+For manual installation [download](https://github.com/beegee-tokyo/DHTesp/archive/master.zip) the archive, unzip it and place the DHTesp folder into the library directory.    
 In Arduino IDE this is usually _**`<arduinosketchfolder>/libraries/`**_    
 In PlatformIO this is usually _**`<user/.platformio/lib>`**_    

@@ -28,7 +28,7 @@
    2017-12-12: Added task switch disable
                Added computeHeatIndex function from Adafruit DNT library
    2017-12-14: Added computeDewPoint function from idDHTLib Library
-               Added getComfortRatio function from idDHTLib Library
+               Added getComfortRatio function from libDHT Library
 
  ******************************************************************/
 
