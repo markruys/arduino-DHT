@@ -11,11 +11,12 @@ Another problem I found is that many of the available libraries use the same nam
 
 Changes to the original library:
 --------
-- Renamed DHT class to DHTesp and filenames from dht.* to DHTesp.* to avoid conflicts with other libraries - beegee-tokyo, <beegee@giesecke.tk>.    
-- Updated to work with ESP32 - beegee-tokyo, <beegee@giesecke.tk>.   
-- Added function computeHeatIndex. Reference: [Adafruit DHT library](https://github.com/adafruit/DHT-sensor-library).    
-- Added function computeDewPoint. Reference: [idDHTLib](https://github.com/niesteszeck/idDHTLib).    
-- Added function getComfortRatio. Reference: [libDHT](https://github.com/ADiea/libDHT).    
+- 2017-12-12: Renamed DHT class to DHTesp and filenames from dht.* to DHTesp.* to avoid conflicts with other libraries - beegee-tokyo, <beegee@giesecke.tk>.    
+- 2017-12-12: Updated to work with ESP32 - beegee-tokyo, <beegee@giesecke.tk>.   
+- 2017-12-12: Added function computeHeatIndex. Reference: [Adafruit DHT library](https://github.com/adafruit/DHT-sensor-library).    
+- 2017-12-14: Added function computeDewPoint. Reference: [idDHTLib](https://github.com/niesteszeck/idDHTLib).    
+- 2017-12-14: Added function getComfortRatio. Reference: [libDHT](https://github.com/ADiea/libDHT). (References about Human Comfort invalid)    
+- 2017-12-15: Added function computePerception. Reference: [WikiPedia Dew point==> Relationship to human comfort](https://en.wikipedia.org/wiki/Dew_point) - beegee-tokyo, <beegee@giesecke.tk>.   
 
 Features
 --------
@@ -25,81 +26,102 @@ Features
   - Determine dewpoint
   - Determine thermal comfort:
     * Empiric comfort function based on comfort profiles(parametric lines)
-    * Multiple comfort profiles possible. Default based on http://epb.apogee.net/res/refcomf.asp
+    * Multiple comfort profiles possible. Default based on http://epb.apogee.net/res/refcomf.asp  (References invalid)
     * Determine if it's too cold, hot, humid, dry, based on current comfort profile
+  - Determine human perception based on humidity, temperature and dew point according to Horstmeyer, Steve (2006-08-15). [Relative Humidity....Relative to What? The Dew Point Temperature...a better approach](http://www.shorstmeyer.com/wxfaqs/humidity/humidity.html)
 
 Functions
 -----
 _**`void setup(uint8_t pin, DHT_MODEL_t model=AUTO_DETECT);`**_    
-Call to initialize the interface, define the GPIO pin to which the sensor is connected and define the sensor type. Valid sensor types are:     
-- AUTO_DETECT     Try to detect which sensor is connected    
-- DHT11    
-- DHT22    
-- AM2302          Packaged DHT22    
-- RHT03           Equivalent to DHT22    
+- Call to initialize the interface, define the GPIO pin to which the sensor is connected and define the sensor type. Valid sensor types are:     
+    - AUTO_DETECT     Try to detect which sensor is connected    
+    - DHT11    
+    - DHT22    
+    - AM2302          Packaged DHT22    
+    - RHT03           Equivalent to DHT22    
 
 _**`void resetTimer();`**_    
-Reset last time the sensor was read    
+- Reset last time the sensor was read    
 
 _**`float getTemperature();`**_    
-Get the temperature in degree Centigrade from the sensor    
+- Get the temperature in degree Centigrade from the sensor    
 Either one of getTemperature() or getHumidity() initiates reading a value from the sensor if the last reading was older than the minimal refresh time of the sensor.    
 
 _**`float getHumidity();`**_    
-Get the humidity from the sensor     
+- Get the humidity from the sensor     
 Either one of getTemperature() or getHumidity() initiates reading a value from the sensor if the last reading was older than the minimal refresh time of the sensor.    
 
 _**`DHT_ERROR_t getStatus();`**_    
-Get last error if reading from the sensor failed. Possible values are:    
-- ERROR_NONE      no error occured
-- ERROR_TIMEOUT   timeout reading from the sensor    
-- ERROR_CHECKSUM  checksum of received values doesn't match
+- Get last error if reading from the sensor failed. Possible values are:    
+  - ERROR_NONE      no error occured
+  - ERROR_TIMEOUT   timeout reading from the sensor    
+  - ERROR_CHECKSUM  checksum of received values doesn't match
 
 _**`const char* getStatusString();`**_    
-Get last error as a char *    
+- Get last error as a char *    
 
 _**`DHT_MODEL_t getModel()`**_    
-Get detected (or defined) sensor type    
+- Get detected (or defined) sensor type    
 
 _**`int getMinimumSamplingPeriod();`**_    
-Get minimmum possible sampling period. For DHT11 this is 1000ms, for other sensors it is 2000ms    
+- Get minimmum possible sampling period. For DHT11 this is 1000ms, for other sensors it is 2000ms    
 
 _**`int8_t getNumberOfDecimalsTemperature();`**_    
-Get number of decimals in the temperature value. For DHT11 this is 0, for other sensors it is 1    
+- Get number of decimals in the temperature value. For DHT11 this is 0, for other sensors it is 1    
 
 _**`int8_t getLowerBoundTemperature();`**_    
-Get lower temperature range of the sensor. For DHT11 this is 0 degree Centigrade, for other sensors this is -40 degree Centrigrade    
+- Get lower temperature range of the sensor. For DHT11 this is 0 degree Centigrade, for other sensors this is -40 degree Centrigrade    
 
 _**`int8_t getUpperBoundTemperature();`**_    
-Get upper temperature range of the sensor. For DHT11 this is 50 degree Centigrade, for other sensors this is 125 degree Centrigrade    
+- Get upper temperature range of the sensor. For DHT11 this is 50 degree Centigrade, for other sensors this is 125 degree Centrigrade    
 
 _**`int8_t getNumberOfDecimalsHumidity();`**_    
-Get number of decimals in the humidity value. This is always 0.    
+- Get number of decimals in the humidity value. This is always 0.    
 
 _**`int8_t getLowerBoundHumidity();`**_    
-Get lower humidity range of the sensor. For DHT11 this is 20 percent, for other sensors this is 0 percent    
+- Get lower humidity range of the sensor. For DHT11 this is 20 percent, for other sensors this is 0 percent    
 
 _**`int8_t getUpperBoundHumidity();`**_    
-Get upper temperature range of the sensor. For DHT11 this is 90 percent, for other sensors this is 100 percent    
+- Get upper temperature range of the sensor. For DHT11 this is 90 percent, for other sensors this is 100 percent    
 
 _**`static float toFahrenheit(float fromCelcius);`**_    
-Convert Centrigrade value to Fahrenheit value    
+- Convert Centrigrade value to Fahrenheit value    
 
 _**`static float toCelsius(float fromFahrenheit) { return (fromFahrenheit - 32.0) / 1.8; };`**_    
-Convert Fahrenheit value to Centigrade value    
+- Convert Fahrenheit value to Centigrade value    
 
 _**`float computeHeatIndex(float temperature, float percentHumidity, bool isFahrenheit=false);`**_    
-Compute the heat index. Default temperature is in Centrigrade.    
+- Compute the heat index. Default temperature is in Centrigrade.    
 
 _**`float computeDewPoint(float temperature, float percentHumidity, bool isFahrenheit=false);`**_    
-Compute the dew point. Default temperature is in Centrigrade.    
+- Compute the dew point. Default temperature is in Centrigrade.    
 
 _**`float getComfortRatio(ComfortState& destComfStatus, float temperature, float percentHumidity, bool isFahrenheit=false);`**_    
-Compute the comfort ratio. Default temperature is in Centrigrade.    
+- Compute the comfort ratio. Default temperature is in Centrigrade. Return values:    
+0 -> OK    
+1 -> Too Hot    
+2 -> Too cold    
+4 -> Too dry    
+8 -> Too humid    
+9 -> Hot and humid    
+5 -> Hot and dry    
+10 -> Cold and humid    
+6 -> Cold and dry    
+
+_**`byte computePerception(float temperature, float percentHumidity, bool isFahrenheit=false);`**_    
+- Compute the human perception. Default temperature is in Centrigrade. Return values:    
+0 -> Dry    
+1 -> Very comfortable    
+2 -> Comfortable    
+3 -> Ok    
+4 -> Uncomfortable    
+5 -> Quite uncomfortable    
+6 -> Very uncomfortable    
+7 -> Severe uncomfortable    
 
 Usage
 -----
-See [examples](https://github.com/beegee-tokyo/DHTesp/blob/master/examples)- . For all the options, see [dhtesp.h](https://github.com/beegee-tokyo/DHTesp/blob/master/DHTesp.h).    
+See [examples](https://github.com/beegee-tokyo/DHTesp/blob/master/examples). For all the options, see [dhtesp.h](https://github.com/beegee-tokyo/DHTesp/blob/master/DHTesp.h).    
 
 Installation
 ------------

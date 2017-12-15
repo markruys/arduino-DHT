@@ -22,13 +22,14 @@
   - http://meteobox.tk/files/AM2302.pdf
 
   Changelog:
-   2013-06-10: Initial version
-   2013-06-12: Refactored code
-   2013-07-01: Add a resetTimer method
-   2017-12-12: Added task switch disable
-               Added computeHeatIndex function from Adafruit DNT library
-   2017-12-14: Added computeDewPoint function from idDHTLib Library
-               Added getComfortRatio function from libDHT Library
+    2013-06-10: Initial version
+    2013-06-12: Refactored code
+    2013-07-01: Add a resetTimer method
+    2017-12-12: Added task switch disable
+                Added computeHeatIndex function from Adafruit DNT library
+    2017-12-14: Added computeDewPoint function from idDHTLib Library
+                Added getComfortRatio function from libDHT Library
+    2017-12-15: Added computePerception function
 
  ******************************************************************/
 
@@ -41,7 +42,7 @@
   #include <Arduino.h>
 #endif
 
-// Reference: http://epb.apogee.net/res/refcomf.asp
+// Reference: http://epb.apogee.net/res/refcomf.asp (References invalid)
 enum ComfortState {
   Comfort_OK = 0,
   Comfort_TooHot = 1,
@@ -52,6 +53,18 @@ enum ComfortState {
   Comfort_HotAndDry = 5,
   Comfort_ColdAndHumid = 10,
   Comfort_ColdAndDry = 6
+};
+
+// References https://en.wikipedia.org/wiki/Dew_point ==> Relationship to human comfort
+enum PerceptionState {
+  Perception_Dry = 0,
+  Perception_VeryComfy = 1,
+  Perception_Comfy = 2,
+  Perception_Ok = 3,
+  Perception_UnComfy = 4,
+  Perception_QuiteUnComfy = 5,
+  Perception_VeryUnComfy = 6,
+  Perception_SevereUncomfy = 7
 };
 
 struct ComfortProfile
@@ -127,7 +140,7 @@ public:
 	inline bool isTooHumid(float temp, float humidity) {return m_comfort.isTooHumid(temp, humidity);}
 	inline bool isTooCold(float temp, float humidity) {return m_comfort.isTooCold(temp, humidity);}
 	inline bool isTooDry(float temp, float humidity) {return m_comfort.isTooDry(temp, humidity);}
-
+  byte computePerception(float temperature, float percentHumidity, bool isFahrenheit=false);
 protected:
   void readSensor();
 

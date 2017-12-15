@@ -36,6 +36,7 @@ isTooHot KEYWORD2
 isTooHumid KEYWORD2
 isTooCold KEYWORD2
 isTooDry KEYWORD2
+computePerception KEYWORD2
 
 #######################################
 # Instances (KEYWORD2)
@@ -65,3 +66,12 @@ Comfort_HotAndHumid	LITERAL1
 Comfort_HotAndDry	LITERAL1
 Comfort_ColdAndHumid	LITERAL1
 Comfort_ColdAndDry	LITERAL1
+
+Perception_Dry	LITERAL1
+Perception_VeryComfy	LITERAL1
+Perception_Comfy	LITERAL1
+Perception_Ok	LITERAL1
+Perception_UnComfy	LITERAL1
+Perception_QuiteUnComfy	LITERAL1
+Perception_UnComfy	LITERAL1
+Perception_VeryUncomfy	LITERAL1

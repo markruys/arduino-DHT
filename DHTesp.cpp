@@ -22,14 +22,14 @@
   - http://meteobox.tk/files/AM2302.pdf
 
   Changelog:
-   2013-06-10: Initial version
-   2013-06-12: Refactored code
-   2013-07-01: Add a resetTimer method
-   2017-12-12: Added task switch disable
-               Added computeHeatIndex function from Adafruit DNT library
-   2017-12-14: Added computeDewPoint function from idDHTLib Library
-               Added getComfortRatio function from libDHT Library
-
+    2013-06-10: Initial version
+    2013-06-12: Refactored code
+    2013-07-01: Add a resetTimer method
+    2017-12-12: Added task switch disable
+                Added computeHeatIndex function from Adafruit DNT library
+    2017-12-14: Added computeDewPoint function from idDHTLib Library
+                Added getComfortRatio function from libDHT Library
+    2017-12-15: Added computePerception function
  ******************************************************************/
 
 #include "DHTesp.h"
@@ -298,7 +298,47 @@ float DHTesp::computeDewPoint(float temperature, float percentHumidity, bool isF
   return isFahrenheit ? toFahrenheit(Td) : Td;
 }
 
+//boolean isFahrenheit: True == Fahrenheit; False == Celcius
+byte DHTesp::computePerception(float temperature, float percentHumidity, bool isFahrenheit) {
+  // Computing human perception from dew point
+  // reference: https://en.wikipedia.org/wiki/Dew_point ==> Relationship to human comfort
+  // reference: Horstmeyer, Steve (2006-08-15). "Relative Humidity....Relative to What? The Dew Point Temperature...a better approach". Steve Horstmeyer, Meteorologist, WKRC TV, Cincinnati, Ohio, USA. Retrieved 2009-08-20.
+  // Using table
+  // Return value Dew point    Human perception[6]
+  //    7         Over 26 °C   Severely high, even deadly for asthma related illnesses
+  //    6         24–26 °C     Extremely uncomfortable, oppressive
+  //    5         21–24 °C     Very humid, quite uncomfortable
+  //    4         18–21 °C     Somewhat uncomfortable for most people at upper edge
+  //    3         16–18 °C     OK for most, but all perceive the humidity at upper edge
+  //    2         13–16 °C     Comfortable
+  //    1         10–12 °C     Very comfortable
+  //    0         Under 10 °C  A bit dry for some
 
+  if (isFahrenheit) {
+    temperature = toCelsius(temperature);
+  }
+  float dewPoint = computeDewPoint(temperature, percentHumidity);
+
+  if (dewPoint < 10.0f) {
+    return Perception_Dry;
+  } else if (dewPoint < 13.0f) {
+    return Perception_VeryComfy;
+  } else if (dewPoint < 16.0f) {
+    return Perception_Comfy;
+  } else if (dewPoint < 18.0f) {
+    return Perception_Ok;
+  } else if (dewPoint < 21.0f) {
+    return Perception_UnComfy;
+  } else if (dewPoint < 24.0f) {
+    return Perception_QuiteUnComfy;
+  } else if (dewPoint < 26.0f) {
+    return Perception_VeryUnComfy;
+  }
+  // else dew >= 26.0
+  return Perception_SevereUncomfy;
+}
+
+//boolean isFahrenheit: True == Fahrenheit; False == Celcius
 float DHTesp::getComfortRatio(ComfortState& destComfortStatus, float temperature, float percentHumidity, bool isFahrenheit) {
 	float ratio = 100; //100%
 	float distance = 0;
