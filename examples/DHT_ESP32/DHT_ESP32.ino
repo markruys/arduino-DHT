@@ -101,17 +101,16 @@ void tempTask(void *pvParameters) {
 bool getTemperature() {
 	// Reading temperature for humidity takes about 250 milliseconds!
 	// Sensor readings may also be up to 2 seconds 'old' (it's a very slow sensor)
-	float newHumidValue = dht.getHumidity();          // Read humidity (percent)
-	float newTempValue = dht.getTemperature();     // Read temperature as Celsius
+  TempAndHumidity newValues = dht.getTempAndHumidity();
 	// Check if any reads failed and exit early (to try again).
 	if (dht.getStatus() != 0) {
 		Serial.println("DHT11 error status: " + String(dht.getStatusString()));
 		return false;
 	}
 
-	float heatIndex = dht.computeHeatIndex(newTempValue, newHumidValue);
-  float dewPoint = dht.computeDewPoint(newTempValue, newHumidValue);
-  float cr = dht.getComfortRatio(cf, newTempValue, newHumidValue);
+	float heatIndex = dht.computeHeatIndex(newValues.temperature, newValues.humidity);
+  float dewPoint = dht.computeDewPoint(newValues.temperature, newValues.humidity);
+  float cr = dht.getComfortRatio(cf, newValues.temperature, newValues.humidity);
 
   String comfortStatus;
   switch(cf) {
@@ -147,7 +146,7 @@ bool getTemperature() {
       break;
   };
 
-  Serial.println(" T:" + String(newTempValue) + " H:" + String(newHumidValue) + " I:" + String(heatIndex) + " D:" + String(dewPoint) + " " + comfortStatus);
+  Serial.println(" T:" + String(newValues.temperature) + " H:" + String(newValues.humidity) + " I:" + String(heatIndex) + " D:" + String(dewPoint) + " " + comfortStatus);
 	return true;
 }
 

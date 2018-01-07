@@ -17,6 +17,9 @@ Changes to the original library:
 - 2017-12-14: Added function computeDewPoint. Reference: [idDHTLib](https://github.com/niesteszeck/idDHTLib).    
 - 2017-12-14: Added function getComfortRatio. Reference: [libDHT](https://github.com/ADiea/libDHT). (References about Human Comfort invalid)    
 - 2017-12-15: Added function computePerception. Reference: [WikiPedia Dew point==> Relationship to human comfort](https://en.wikipedia.org/wiki/Dew_point) - beegee-tokyo, <beegee@giesecke.tk>.   
+- 2018-01-02: Added example for multiple sensors usage.    
+- 2018-01-03: Added function getTempAndHumidity which returns temperature and humidity in one call.    
+- 2018-01-03: Added retry in case the reading from the sensor fails with a timeout.    
 
 Features
 --------
@@ -28,6 +31,7 @@ Features
     * Empiric comfort function based on comfort profiles(parametric lines)
     * Multiple comfort profiles possible. Default based on http://epb.apogee.net/res/refcomf.asp  (References invalid)
     * Determine if it's too cold, hot, humid, dry, based on current comfort profile
+    * More info at [Determining Thermal Comfort Using a Humidity and Temperature Sensor](https://www.azosensors.com/article.aspx?ArticleID=487)
   - Determine human perception based on humidity, temperature and dew point according to Horstmeyer, Steve (2006-08-15). [Relative Humidity....Relative to What? The Dew Point Temperature...a better approach](http://www.shorstmeyer.com/wxfaqs/humidity/humidity.html)
 
 Functions
@@ -45,11 +49,19 @@ _**`void resetTimer();`**_
 
 _**`float getTemperature();`**_    
 - Get the temperature in degree Centigrade from the sensor    
-Either one of getTemperature() or getHumidity() initiates reading a value from the sensor if the last reading was older than the minimal refresh time of the sensor.    
+Either one of  _`getTemperature()`_ or  _`getHumidity()`_ or  _`getTempAndHumidity()`_ initiates reading a value from the sensor if the last reading was older than the minimal refresh time of the sensor.    
+See example _`DHT_ESP32.ino`_ or _`DHT_Test.ino`_    
 
 _**`float getHumidity();`**_    
 - Get the humidity from the sensor     
-Either one of getTemperature() or getHumidity() initiates reading a value from the sensor if the last reading was older than the minimal refresh time of the sensor.    
+Either one of  _`getTemperature()`_ or  _`getHumidity()`_ or  _`getTempAndHumidity()`_ initiates reading a value from the sensor if the last reading was older than the minimal refresh time of the sensor.    
+See example _`DHT_ESP32.ino`_ or _`DHT_Test.ino`_    
+
+_**`TempAndHumidity getTempAndHumidity();`**_    
+- Get the temperature and humidity from the sensor     
+Either one of _`getTemperature()`_ or  _`getHumidity()`_ or  _`getTempAndHumidity()`_ initiates reading a value from the sensor if the last reading was older than the minimal refresh time of the sensor.    
+Return value is a struct of type _`getTempAndHumidity`_ with temperature and humidity as float values.
+See example _`DHT_Multi.ino`_    
 
 _**`DHT_ERROR_t getStatus();`**_    
 - Get last error if reading from the sensor failed. Possible values are:    

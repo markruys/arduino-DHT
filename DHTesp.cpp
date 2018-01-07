@@ -30,7 +30,10 @@
     2017-12-14: Added computeDewPoint function from idDHTLib Library
                 Added getComfortRatio function from libDHT Library
     2017-12-15: Added computePerception function
- ******************************************************************/
+    2018-01-02: Added example for multiple sensors usage.
+    2018-01-03: Added function getTempAndHumidity which returns temperature and humidity in one call.
+    2018-01-03: Added retry in case the reading from the sensor fails with a timeout.
+******************************************************************/
 
 #include "DHTesp.h"
 
@@ -82,13 +85,30 @@ void DHTesp::resetTimer()
 float DHTesp::getHumidity()
 {
   readSensor();
+  if ( error == ERROR_TIMEOUT ) { // Try a second time to read
+    readSensor();
+  }
   return humidity;
 }
 
 float DHTesp::getTemperature()
 {
   readSensor();
+  if ( error == ERROR_TIMEOUT ) { // Try a second time to read
+    readSensor();
+  }
   return temperature;
+}
+
+TempAndHumidity DHTesp::getTempAndHumidity()
+{
+  readSensor();
+  if ( error == ERROR_TIMEOUT ) { // Try a second time to read
+    readSensor();
+  }
+  values.temperature = temperature;
+  values.humidity = humidity;
+  return values;
 }
 
 #ifndef OPTIMIZE_SRAM_SIZE
@@ -151,8 +171,11 @@ void DHTesp::readSensor()
   temperature = NAN;
   humidity = NAN;
 
-  // Request sample
+  uint16_t rawHumidity = 0;
+  uint16_t rawTemperature = 0;
+  uint16_t data = 0;
 
+  // Request sample
   digitalWrite(pin, LOW); // Send start signal
   pinMode(pin, OUTPUT);
   if ( model == DHT11 ) {
@@ -170,10 +193,6 @@ void DHTesp::readSensor()
   // - First a FALLING, RISING, and FALLING edge for the start bit
   // - Then 40 bits: RISING and then a FALLING edge per bit
   // To keep our code simple, we accept any HIGH or LOW reading if it's max 85 usecs long
-
-  uint16_t rawHumidity = 0;
-  uint16_t rawTemperature = 0;
-  uint16_t data = 0;
 
 #ifdef ESP32
   // ESP32 is a multi core / multi processing chip
