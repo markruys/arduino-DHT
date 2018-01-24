@@ -1,4 +1,4 @@
-#include "DHT.h"
+#include "arduino-DHT.h"
 
 DHT dht;
 
@@ -6,9 +6,15 @@ void setup()
 {
   Serial.begin(9600);
   Serial.println();
-  Serial.println("Status\tHumidity (%)\tTemperature (C)\t(F)");
 
   dht.setup(2); // data pin 2
+  if ( dht.getModel() == DHT::DHT11 ) {
+    Serial.println("Auto-detected DHT11");
+  } else if ( dht.getModel() == DHT::DHT22 ) {
+    Serial.println("Auto-detected DHT22");  
+  } 
+
+  Serial.println("Status\tHumidity (%)\tTemperature (C)\t(F)");
 }
 
 void loop()
