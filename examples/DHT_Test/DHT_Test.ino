@@ -1,4 +1,4 @@
-#include "DHT.h"
+#include "arduino-DHT.h"
 
 DHT dht;
 

@@ -26,7 +26,7 @@
    2013-07-01: Add a resetTimer method
  ******************************************************************/
 
-#include "DHT.h"
+#include "arduino-DHT.h"
 
 void DHT::setup(uint8_t pin, DHT_MODEL_t model)
 {
