@@ -4,9 +4,9 @@ DHT dht;
 
 void setup()
 {
-  Serial.begin(9600);
+  Serial.begin(115200);
   Serial.println();
-  Serial.println("Status\tHumidity (%)\tTemperature (C)\t(F)");
+  Serial.println("Status\tHumidity (%)\tTemperature (C)");
 
   dht.setup(2); // data pin 2
 }
@@ -15,15 +15,12 @@ void loop()
 {
   delay(dht.getMinimumSamplingPeriod());
 
-  float humidity = dht.getHumidity();
-  float temperature = dht.getTemperature();
+  float humidity = dht.getHumidity()*0.1;
+  float temperature = dht.getTemperature()*0.1;
 
-  Serial.print(dht.getStatusString());
+  Serial.print(!dht.getStatus());
   Serial.print("\t");
   Serial.print(humidity, 1);
   Serial.print("\t\t");
-  Serial.print(temperature, 1);
-  Serial.print("\t\t");
-  Serial.println(dht.toFahrenheit(temperature), 1);
+  Serial.println(temperature, 1);
 }
-
