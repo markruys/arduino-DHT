@@ -12,6 +12,10 @@ Features
   - Low memory footprint
   - Very small code
 
+## Status
+
+Confirmed working with an ESP32 and DHT22 as of 2019.  Still going strong!
+
 Usage
 -----
 
